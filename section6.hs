@@ -34,6 +34,10 @@ lmax :: Ord a => [a] -> a
 lmax [] = error "empty list"
 lmax xs = foldr1 (\x acc -> if x < acc then acc else x) xs
 --25--
+scanl' _ acc [] = [acc]
+scanl' f acc (x:[]) = acc : [f acc x]
+scanl' f acc (x:xs) = acc : (scanl' f res xs)
+                            where res = f acc x
 --26--
 prefix :: [Char] -> [[Char]]
 prefix = foldr (\el acc -> [] : map (el:) acc) [[]] 
@@ -73,7 +77,18 @@ curry' f = \x -> \y -> f (x,y)
 uncurry' :: (a -> b -> c) -> ((a,b) -> c)
 uncurry' f (x, y) = f x y
 --30--
+g :: a -> b -> d
+h :: d -> c
+f = curry (h . (uncurry g))
 --31--
 zapp :: [a -> b] -> [a] -> [b]
 zapp funcs args = []
 --32--
+--a--
+compressor [] = []
+compressor xs = (head xs, num) : compressor (drop num xs)
+                    where num = countFirst xs
+                          countFirst xs = length $ takeWhile (head xs ==) xs
+--b--
+decompressor [] = []
+decompressor (x:xs) = replicate (snd x) (fst x) ++ decompressor xs

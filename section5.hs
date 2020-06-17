@@ -76,6 +76,18 @@ gcdExt 0 b = (b, 0, 1)
 gcdExt a b = let (g, s, t) = gcdExt (b `mod` a) a
            in (g, t - (b `div` a) * s, s)
 --13--
+noGcd (_, a, b) = (a, b)
+eqSolve :: Int -> Int -> Int -> [(Int, Int)]
+eqSolve a b c | mod c d /= 0 = []
+                    where d = gcd a b
+eqSolve a b c = let d = gcd a b
+                    a0 = div a d
+                    b0 = div b d
+                    c0 = div c d
+                    (u0, v0) = noGcd (gcdExt a0 b0) 
+                    u = u0 * c0
+                    v = v0 * c0
+                 in (u,v) : concat [[(u - b0 * t, v + a0 * t),(u - b0 * (-t), v + a0 * (-t))] | t <- [1..5]]
 --14--
 dupl :: [a] -> [a]
 dupl [] = []
@@ -88,7 +100,28 @@ repRem :: Eq a => [a] -> [a]
 repRem [] = []
 repRem (x:xs) = x : repRem (filter (/=x) xs)
 --17--
+findKthMin n (x:xs) = if n == (l + 1)
+                      then x
+                      else if n <= l
+                           then findKthMin n lesser
+                           else findKthMin (n-l-1) greater
+                      where lesser = [y | y <- xs, y < x]
+                            greater = [y | y <- xs, y > x]
+                            l = length lesser
+--18--
+part :: Int -> Int -> [[Int]]
+part 0 _ = [[]]
+part 1 n = [[n]]
+part m n = concat [map (i:) (part (m-1) (n-i)) | i <- [0..n]]
+--19--
+sbseqs :: [a] -> [[a]]
+sbseqs [] = [[]]
+sbseqs xs = concat [sbseqsl l xs | l <- [1..(length xs)]]
 
+sbseqsl n xs | n > (length xs) = [[]]
+sbseqsl n xs | n == (length xs) = [xs]
+sbseqsl 1 xs = [[x] | x <- xs]
+sbseqsl n (x:xs) = (map (x:) (sbseqsl (n-1) xs)) ++ (sbseqsl n xs)
 
 
 
